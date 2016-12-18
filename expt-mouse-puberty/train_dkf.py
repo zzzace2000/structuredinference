@@ -65,7 +65,7 @@ train_bound, valid_bound = DKF_learn.learn(dkf, dataset['train_obs'],
                                 actions_eval=dataset['valid_act'],
                                 mask_eval  = dataset['valid_mask'],
                                 replicate_K= params['replicate_K'],
-                                shuffle    = False
+                                shuffle    = True
                                 )
 displayTime('Running DKF', start_time, time.time())
 saveHDF5(params['savedir']+'/'+params['unique_id']+'-final-stats.h5',
@@ -77,15 +77,23 @@ eval_z_q, eval_mu_q, eval_logcov_q = DKF_evaluate.infer(dkf, dataset['observatio
 saveHDF5(params['savedir']+'/'+params['unique_id']+'-final-infer.h5',
          { 'eval_z_q': eval_z_q, 'eval_mu_q': eval_mu_q, 'eval_logcov_q': eval_logcov_q })
 
+# gender_each_time_cfac = DKF_evaluate.genderEachTimeCfac(dkf, dataset['observation'], dataset['actions'], dataset['indicators'])
+# cPickle.dump({'gender_each_time_cfac': gender_each_time_cfac},
+#              open('%s/%s-gender-each-time-cfac.pkl' % (params['savedir'], params['unique_id']), 'wb'))
+
+# Do time inference at both gender
+# time_cfac = DKF_evaluate.timeCfac(dkf, dataset['observation'], dataset['actions'])
+# cPickle.dump({'time_cfac': time_cfac}, open('%s/%s-cfac.pkl' % (model, params['unique_id']), 'wb'))
+
 # Do Counterfactual analysis
 # Put male and make into female
-male_cfac = DKF_evaluate.genderCfac(dkf, dataset['observation'][:6], dataset['actions'][:6])
-# Put female and make into male
-female_cfac = DKF_evaluate.genderCfac(dkf, dataset['observation'][6:], dataset['actions'][6:])
-model_weights = dkf.getModelWeights()
-
-cPickle.dump({'male_cfac': male_cfac, 'female_cfac': female_cfac, 'model_weights': model_weights},
-             open(params['savedir']+'/'+params['unique_id']+'-cfac.pkl', 'wb'))
+# male_cfac = DKF_evaluate.genderCfac(dkf, dataset['observation'][:6], dataset['actions'][:6])
+# # Put female and make into male
+# female_cfac = DKF_evaluate.genderCfac(dkf, dataset['observation'][6:], dataset['actions'][6:])
+# model_weights = dkf.getModelWeights()
+#
+# cPickle.dump({'male_cfac': male_cfac, 'female_cfac': female_cfac, 'model_weights': model_weights},
+#              open(params['savedir']+'/'+params['unique_id']+'-cfac.pkl', 'wb'))
 
 
 # Use val as test

@@ -6,6 +6,7 @@ import sys, time, os, gzip, theano,math
 sys.path.append('../')
 from theano import config
 theano.config.compute_test_value = 'warn'
+theano.config.optimizer = 'fast_compile'
 from theano.printing import pydotprint
 import theano.tensor as T
 from utils.misc import saveHDF5
@@ -158,13 +159,18 @@ class DKF(BaseModel, object):
         if self.params['data_type']=='binary':
             mean_params = T.nnet.sigmoid(T.dot(hid,self.tWeights['p_emis_W_ber'])+
                                              self.tWeights['p_emis_b_ber'])
-            #if self.params['dim_indicators']>0:
-            #    assert I is not None,'Requires I'
-            #    mean_params = mean_params*I
+            if self.params['dim_indicators']>0:
+                assert I is not None,'Requires I'
+                mean_params = mean_params*I
             return [mean_params]
+
         elif self.params['data_type'] == 'gaussian':
             mu = T.dot(hid, self.tWeights['p_emis_W_mu'])+self.tWeights['p_emis_b_mu']
             cov = T.nnet.softplus(T.dot(hid, self.tWeights['p_emis_W_cov']) + self.tWeights['p_emis_b_cov'])
+            if self.params['dim_indicators']>0:
+                assert I is not None,'Requires I'
+                mu = mu*I
+                # Make number stable. covariance not changed.
             return [mu, cov]
         else:
             assert False,'Invalid type of data'
@@ -448,8 +454,8 @@ class DKF(BaseModel, object):
         self.transition_fxn      = theano.function(eval_inputs, [eval_mu_trans, eval_logcov_trans],
                                                        name='Transition Function', allow_input_downcast= True)
         emission_inputs = [eval_z_q]
-        #if self.params['dim_indicators']>0:
-        #    emission_inputs.append(I)
+        if self.params['dim_indicators']>0:
+            emission_inputs.append(I)
         self.emission_fxn = theano.function(emission_inputs, eval_obs_params[0], name='Emission Function', allow_input_downcast=True)
         self.posterior_inference = theano.function([X],
                                                    [eval_z_q, eval_mu_q, eval_logcov_q],

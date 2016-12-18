@@ -10,10 +10,15 @@ from utils.misc import readPickle, loadHDF5, getConfigFile, savePickle
 from mouse_puberty_data.load import loadMedicalData
 from parse_args_dkf_mouse_puberty import params
 
+EP = '900'
+
 model = 'chkpt-%s-%s' % (params['dataset'], params['actionset'])
+if params['extrafoldername'] != '':
+    model += '-'+params['extrafoldername']
+
 dataset    = loadMedicalData(params['dataset'], params['actionset'])
 # reloadFile = 'chkpt-male_H/DKF_lr-8_0000e-04-vm-R-inf-structured-dh-50-ds-20-nl-relu-bs-256-ep-2000-rs-100-ar-1_0000e+01-rv-5_0000e-02-uid-EP1999-params.npz'
-reloadFile = '%s/%s-EP2999-params.npz' % (model, params['unique_id'])
+reloadFile = '%s/%s-EP%s-params.npz' % (model, params['unique_id'], EP)
 
 pfile      = getConfigFile(reloadFile)
 params     = readPickle(pfile)[0]
@@ -23,17 +28,22 @@ import stinfmodel_mouse_puberty.learning as DKF_learn
 import stinfmodel_mouse_puberty.evaluate as DKF_evaluate
 dkf  = DKF(params, paramFile = pfile, reloadFile = reloadFile)
 
+gender_each_time_cfac = DKF_evaluate.genderEachTimeCfac(dkf, dataset['observation'], dataset['actions'], dataset['indicators'])
+cPickle.dump({'gender_each_time_cfac': gender_each_time_cfac},
+             open('%s/%s-gender-each-time-cfac.pkl' % (params['savedir'], params['unique_id']), 'wb'))
+
 # eval_z_q, eval_mu_q, eval_logcov_q = DKF_evaluate.infer(dkf, dataset['observation'])
 #
 # saveHDF5('%s/%s-final-infer.h5' % (model, params['unique_id']),
 #          { 'eval_z_q': eval_z_q, 'eval_mu_q': eval_mu_q, 'eval_logcov_q': eval_logcov_q })
 
-# Put male and make into female
-male_cfac = DKF_evaluate.genderCfac(dkf, dataset['observation'][:6], dataset['actions'][:6])
-# Put female and make into male
-female_cfac = DKF_evaluate.genderCfac(dkf, dataset['observation'][6:], dataset['actions'][6:])
+# time_cfac = DKF_evaluate.timeCfac(dkf, dataset['observation'], dataset['actions'])
+# cPickle.dump({'time_cfac': time_cfac}, open('%s/%s-cfac.pkl' % (model, params['unique_id']), 'wb'))
 
-cPickle.dump({'male_cfac': male_cfac, 'female_cfac': female_cfac}, open('%s/%s-cfac.pkl' % (model, params['unique_id']), 'wb'))
+# Put female and make into male
+# male_cfac = DKF_evaluate.genderCfac(dkf, dataset['observation'][:6], dataset['actions'][:6])
+# female_cfac = DKF_evaluate.genderCfac(dkf, dataset['observation'][6:], dataset['actions'][6:])
+# cPickle.dump({'male_cfac': male_cfac, 'female_cfac': female_cfac}, open('%s/%s-cfac.pkl' % (model, params['unique_id']), 'wb'))
 
 #Visualize in ipynb - display samples, display cfac on test, display 
 # fname= 'check_evaluation.pkl'

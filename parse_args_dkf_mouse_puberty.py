@@ -10,12 +10,12 @@ parser.add_argument('-dset','--dataset', action='store',default = 'H',
                     help='Dataset', type=str, choices=['N', 'P', 'H', 'male_H','male_P','male_N'])
 parser.add_argument('-actset','--actionset', action='store',default = 'time-gender',
                     help='Dataset', type=str, choices=['time', 'gender', 'time-gender'])
-parser.add_argument('-exfolder','--extrafoldername', action='store',default = 'linear',
+parser.add_argument('-exfolder','--extrafoldername', action='store',default = 'trans-l-emis-l',
                     help='Extra folder name', type=str)
 
 #Recognition Model
 parser.add_argument('-rl','--rnn_layers', action='store',default = 1, help='Number of layers in the RNN', type=int, choices=[1,2])
-parser.add_argument('-rs','--rnn_size', action='store',default = 20, help='Hidden unit size in q model/RNN', type=int)
+parser.add_argument('-rs','--rnn_size', action='store',default = 50, help='Hidden unit size in q model/RNN', type=int)
 # parser.add_argument('-rs','--rnn_size', action='store',default = 400, help='Hidden unit size in q model/RNN', type=int)
 parser.add_argument('-rd','--rnn_dropout', action='store',default = 0.3, help='Dropout after each RNN output layer', type=float)
 # parser.add_argument('-rd','--rnn_dropout', action='store',default = 0.01, help='Dropout after each RNN output layer', type=float)
@@ -24,8 +24,8 @@ parser.add_argument('-infm','--inference_model', action='store',default = 'struc
 parser.add_argument('-ql','--q_mlp_layers', action='store',default = 1, help='#Layers in Recognition Model', type=int)
 
 #Generative model
-parser.add_argument('-ds','--dim_stochastic', action='store',default = 10, help='Stochastic dimensions', type=int)
-parser.add_argument('-dh','--dim_hidden', action='store', default = 10, help='Hidden dimensions in DKF', type=int)
+parser.add_argument('-ds','--dim_stochastic', action='store',default = 50, help='Stochastic dimensions', type=int)
+parser.add_argument('-dh','--dim_hidden', action='store', default = 30, help='Hidden dimensions in DKF', type=int)
 parser.add_argument('-tl','--transition_layers', action='store', default = 0, help='Layers in transition fxn', type=int)
 parser.add_argument('-el','--emission_layers', action='store',default = 0, help='Layers in emission fxn', type=int)
 
@@ -42,14 +42,14 @@ parser.add_argument('-vonly','--validate_only', action='store_true', help='Only 
 parser.add_argument('-lr','--lr', action='store',default = 5e-3, help='Learning rate', type=float)
 parser.add_argument('-opt','--optimizer', action='store',default = 'adam', help='Optimizer',choices=['adam','rmsprop'])
 parser.add_argument('-bs','--batch_size', action='store',default = 256, help='Batch Size',type=int)
-parser.add_argument('-ar','--anneal_rate', action='store',default = 10., help='Number of param. updates before anneal=1',type=float)
+parser.add_argument('-ar','--anneal_rate', action='store',default = 20., help='Number of param. updates before anneal=1',type=float)
 parser.add_argument('-repK','--replicate_K', action='store',default = None, help='Number of samples used for the variational bound. Created by replicating the batch',type=int)
 parser.add_argument('-shuf','--shuffle', action='store_true',help='Shuffle during training')
 parser.add_argument('-covexp','--cov_explicit', action='store_true',help='Explicitly parameterize covariance')
 
 #Regularization
-parser.add_argument('-reg','--reg_type', action='store',default = 'l1', help='Type of regularization',type=str,choices=['l1','l2'])
-parser.add_argument('-rv','--reg_value', action='store',default = 0, help='Amount of regularization',type=float)
+parser.add_argument('-reg','--reg_type', action='store',default = 'l2', help='Type of regularization',type=str,choices=['l1','l2'])
+parser.add_argument('-rv','--reg_value', action='store',default = 0.05, help='Amount of regularization',type=float)
 parser.add_argument('-rspec','--reg_spec', action='store',default = '_', help='String to match parameters (Default is generative model)',type=str)
 
 #Save/load
@@ -57,7 +57,7 @@ parser.add_argument('-debug','--debug', action='store_true',help='Debug')
 parser.add_argument('-uid','--unique_id', action='store',default = 'uid',help='Unique Identifier',type=str)
 parser.add_argument('-seed','--seed', action='store',default = 1, help='Random Seed',type=int)
 parser.add_argument('-dir','--savedir', action='store',default = './chkpt', help='Prefix for savedir',type=str)
-parser.add_argument('-ep','--epochs', action='store',default = 3000, help='MaxEpochs',type=int)
+parser.add_argument('-ep','--epochs', action='store',default = 2000, help='MaxEpochs',type=int)
 parser.add_argument('-reload','--reloadFile', action='store',default = './NOSUCHFILE', help='Reload from saved model',type=str)
 parser.add_argument('-params','--paramFile', action='store',default = './NOSUCHFILE', help='Reload parameters from saved model',type=str)
 parser.add_argument('-sfreq','--savefreq', action='store',default = 100, help='Frequency of saving',type=int)
